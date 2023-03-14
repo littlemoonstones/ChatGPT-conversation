@@ -1,4 +1,14 @@
+## Live Preview
+
+link: https://littlemoonstones.github.io/ChatGPT-conversation/
+
+> **Notice:**
+>
+> - This website is only intended to demonstrate the conversation structure, so it does **not use the ChatGPT API**; instead, it uses a mock API.
+> - The user interface of the website has not been optimized, so we recommend using a desktop computer.
+
 ## Demo
+
 https://user-images.githubusercontent.com/32943414/225080616-de3a7381-a2be-4200-9246-acd7d3e3ff83.mov
 
 
