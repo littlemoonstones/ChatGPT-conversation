@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { defineProps, ref } from 'vue'
+import { defineProps, reactive } from 'vue'
 import type { PropType } from 'vue'
-import type { ChatMessage } from '@/lib/Type'
-import { ChatCompletionRequestMessageRoleEnum } from '@/lib/Type'
+import type { ChatMessage } from '@/lib/types'
+import { ChatCompletionRequestMessageRoleEnum } from '@/lib/types'
 import { useChatRoomStore } from '@/stores/chatroom'
 import { useStatusStore } from '@/stores/status'
+import { useResponseStore } from '@/stores/responseStore'
 import { getResponse } from '@/lib/ChatGPTMock'
 
 // https://github.com/vuejs/core/issues/4294
@@ -21,25 +22,28 @@ const props = defineProps({
 })
 const chatRoomStore = useChatRoomStore()
 const statusStore = useStatusStore()
+const responseStore = useResponseStore()
 
 const parentId = props.message.parentMessageId
 const parentNode = chatRoomStore.data?.mapping[parentId!]!
 const isUser = props.message.role == ChatCompletionRequestMessageRoleEnum.User
 
-const isEdit = ref(false)
-const editMessage = ref('')
+const editState = reactive({
+  isEdit: false,
+  editMessage: ''
+})
 
-const total_length = parentNode.children.length
+const totalLength = parentNode.children.length
 const currentPage = parentNode.children.indexOf(props.message.id)
 
 const clickEditMessage = () => {
-  isEdit.value = true
-  editMessage.value = props.message.text
+  editState.isEdit = true
+  editState.editMessage = props.message.text
 }
 
 const clickCancel = () => {
-  isEdit.value = false
-  editMessage.value = ''
+  editState.isEdit = false
+  editState.editMessage = ''
 }
 
 // Submit Message
@@ -54,8 +58,8 @@ const clickSubmit = async (text: string) => {
     parentMessageId: chatRoomStore.data?.current_node
   })
 
-  isEdit.value = false
-  editMessage.value = ''
+  editState.isEdit = false
+  editState.editMessage = ''
   statusStore.isLoading = false
 }
 </script>
@@ -64,11 +68,11 @@ const clickSubmit = async (text: string) => {
     <div class="flex w-full">
       <div class="flex-1">
         <h2 class="font-bold font-mono">{{ props.message.role }}</h2>
-        <p v-if="!isEdit">{{ props.message.text }}</p>
+        <p v-if="!editState.isEdit">{{ props.message.text }}</p>
         <div v-else>
-          <textarea class="w-full" v-model="editMessage"></textarea>
+          <textarea class="w-full" v-model="editState.editMessage"></textarea>
           <div class="flex justify-center">
-            <button class="btn btn-success btn-sm" @click="clickSubmit(editMessage)">Submit</button>
+            <button class="btn btn-success btn-sm" @click="clickSubmit(editState.editMessage)">Submit</button>
             <button class="btn btn-outline btn-sm ml-2" @click="clickCancel">Cancel</button>
           </div>
         </div>
@@ -78,23 +82,23 @@ const clickSubmit = async (text: string) => {
         <button v-if="isUser" class="btn btn-outline btn-sm" @click="clickEditMessage">Edit</button>
       </div>
     </div>
-    <div v-if="total_length! > 1" class="flex btn-group items-center">
+    <div v-if="totalLength! > 1" class="flex btn-group items-center">
       <button
         class="btn btn-sm btn-ghost"
         :class="{ 'btn-disabled': currentPage == 0 }"
         @click="
           () => {
-            chatRoomStore.switchNode(props.index, -1)
+            chatRoomStore.clickSwitchNode(props.index, -1)
           }
         "
       >
         «
       </button>
-      <p class="text-center">{{ currentPage + 1 }} / {{ total_length }}</p>
+      <p class="text-center">{{ currentPage + 1 }} / {{ totalLength }}</p>
       <button
         class="btn btn-sm btn-ghost"
-        :class="{ 'btn-disabled': currentPage + 1 == total_length }"
-        @click="chatRoomStore.switchNode(props.index, 1)"
+        :class="{ 'btn-disabled': currentPage + 1 == totalLength }"
+        @click="chatRoomStore.clickSwitchNode(props.index, 1)"
       >
         »
       </button>

@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { defineStore } from 'pinia'
-import type { Conversation } from '@/lib/Type'
+import type { Conversation } from '@/lib/types'
 
 export const useListStore = defineStore('list', () => {
     const List = reactive<Conversation[]>([])

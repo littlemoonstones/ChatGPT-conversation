@@ -1,5 +1,5 @@
-import type { ChatMessage } from './Type'
-import { ChatCompletionRequestMessageRoleEnum } from './Type'
+import type { ChatMessage } from './types'
+import { ChatCompletionRequestMessageRoleEnum } from './types'
 import { faker } from '@faker-js/faker'
 
 /*
